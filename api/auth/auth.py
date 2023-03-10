@@ -71,7 +71,7 @@ class Admins(Resource):
         is_administrator = payload_dict.get('is_administrator')
 
         if not is_administrator:
-            abort(401, 'Not Authorized')
+            abort(HTTPStatus.UNAUTHORIZED, 'Not Authorized')
 
         '''Create an admin'''
         data = request.get_json()
@@ -79,13 +79,13 @@ class Admins(Resource):
         password = data.get('password')
 
         if len(password) < 6:
-            abort(400, 'Password is too short')
+            abort(HTTPStatus.BAD_REQUEST, 'Password is too short')
         
         if not validators.email(email):
-            abort(400, 'Email is not valid')
+            abort(HTTPStatus.BAD_REQUEST, 'Email is not valid')
 
         if Admin.query.filter_by(email=email).first() is not None:
-            abort(409, 'Email is taken')
+            abort(HTTPStatus.CONFLICT, 'Email is taken')
 
         password_hash = generate_password_hash(password)
 
@@ -113,7 +113,7 @@ class Admins(Resource):
 
             return admin, HTTPStatus.OK
         
-        abort(401, 'Wrong credentials')
+        abort(HTTPStatus.UNAUTHORIZED, 'Wrong credentials')
 
 
 
@@ -135,7 +135,7 @@ class Admins(Resource):
 
             return student, HTTPStatus.OK
         
-        abort(401, 'Wrong credentials')
+        abort(HTTPStatus.UNAUTHORIZED, 'Wrong credentials')
 
 
 @auth_namespace.route('/admin/test')
@@ -149,3 +149,21 @@ class Admins(Resource):
         return is_administrator, HTTPStatus.OK
         
     
+
+
+@auth_namespace.route('/admin/delete-admin')
+class Admins(Resource):
+
+    @token_required
+    def delete(self, id, payload_dict):
+        ''' Delete an admin '''
+        is_administrator = payload_dict.get('is_administrator')
+
+        if not is_administrator:
+            abort(HTTPStatus.UNAUTHORIZED, 'Not Authorized')
+        
+        admin_to_delete = Admin.query.get_or_404(id)
+        admin_to_delete.delete()
+
+        return "", HTTPStatus.NO_CONTENT
+
