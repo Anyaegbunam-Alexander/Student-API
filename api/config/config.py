@@ -34,7 +34,9 @@ class TestConfig(Config):
 
 
 class ProdConfig(Config):
-    ...    
+    SQLALCHEMY_DATABASE_URI = config('DATABASE_URL')
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+    DEBUG = config('DEBUG', cast=bool)
 
 
 

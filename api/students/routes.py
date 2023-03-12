@@ -48,6 +48,12 @@ student_model_input = student_namespace.model(
 )
 
 
+student_model_input_remove_courses = student_namespace.model(
+    'Student',
+    {
+        'courses': fields.List(fields.Integer(), required=True)
+    }
+)
 
 @student_namespace.route('/admin/students')
 class Students(Resource):
@@ -109,6 +115,8 @@ class Students(Resource):
 
     @token_required
     @student_namespace.marshal_list_with(student_model_output, envelope='student')
+    @student_namespace.doc(
+        description = "Get any student by id. (Admin only)")
     def get(self, payload_dict, id):
         '''Get a student by id (Admin) '''
         student = Student.query.get_or_404(id)
@@ -154,12 +162,10 @@ class Students(Resource):
                         queried_grade.score = score
                     else:
                         grade_obj = Grade(student_id=student_to_update.id, course_id=course_obj.id, score=score)
-                        grade_obj.save()
-               
+                        db.session.add(grade_obj)
 
-        calculate_grade(student_to_update, Course)
         db.session.commit()
-
+        calculate_grade(student_to_update, Course)
 
         return student_to_update, HTTPStatus.OK
 
@@ -176,6 +182,43 @@ class Students(Resource):
         return HTTPStatus.NO_CONTENT
 
 
+@student_namespace.route('/admin/student/remove-course/<int:id>')
+class Students(Resource):
+    @token_required
+    @student_namespace.marshal_with(student_model_output, envelope='student')
+    @student_namespace.expect(student_model_input_remove_courses)
+    def put(self, payload_dict, id):
+        '''Update a student by id'''
+        is_administrator = payload_dict.get('is_administrator')
+
+        if not is_administrator:
+            abort(HTTPStatus.UNAUTHORIZED, 'Not Authorized')
+
+        student_to_update = Student.query.get_or_404(id)
+        data = request.get_json()
+        courses = data.get('courses')
+
+        # Add each course from the list obtained from the request to the student's list of courses
+        if courses:
+            for course_id in courses:
+                course_obj = Course.query.get_or_404(course_id)
+
+                # Remove the course to the student's list of courses
+                
+                if course_obj:
+                    if course_obj in student_to_update.student_courses:
+                        student_to_update.student_courses.remove(course_obj)
+                
+                    queried_grade = Grade.query.filter_by(student_id=id, course_id=course_id).first()
+                    if queried_grade:
+                        db.session.delete(queried_grade)
+
+        db.session.commit()
+        calculate_grade(student_to_update, Course)
+
+
+        return student_to_update, HTTPStatus.OK
+
 
 @student_namespace.route('/student/<int:id>')
 class Students(Resource):
@@ -183,7 +226,7 @@ class Students(Resource):
     @token_required
     @student_namespace.marshal_list_with(student_model_output, code=200, envelope='student')
     def get(self, payload_dict, id):
-        ''' Get a student by id (non admin) '''
+        ''' Get a student by id (non admin)'''
         student = Student.query.get_or_404(id)
         payload_id = payload_dict.get('id')
 
@@ -205,4 +248,3 @@ class Students(Resource):
                         student.GPA = round((total_quality_points/total_course_units), 2)            
         
         return student, HTTPStatus.OK
-

@@ -110,6 +110,7 @@ class Admins(Resource):
 
         if admin and check_password_hash(admin.password, password):
             create_access_token_admin(admin)
+            admin.is_administrator = True
 
             return admin, HTTPStatus.OK
         
