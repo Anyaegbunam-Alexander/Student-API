@@ -9,7 +9,7 @@ GRANDPARENT_DIR = os.path.abspath(os.path.join(PARENT_DIR, os.pardir))
 
 class Config:
     SECRET_KEY=config('SECRET_KEY', 'secret')
-    SQLALCHEMY_TRACK_MODIFICATIONS = False
+    DEBUG = config('DEBUG', cast=bool)
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(minutes=60)
     JWT_REFRESH_TOKEN_EXPIRES =  timedelta(minutes=60)
     JWT_SECRET_KEY = config('JWT_SECRET_KEY')
@@ -19,13 +19,18 @@ class Config:
 
 
 class DevConfig(Config):
-    DEBUG = config('DEBUG', cast=bool)
-    SQLALCHEMY_ECHO = True
     SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(GRANDPARENT_DIR, 'students.db')
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+    SQLALCHEMY_ECHO = True
+
 
 
 class TestConfig(Config):
-    ...
+    TESTING = True
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///'
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+    SQLALCHEMY_ECHO = False
+    
 
 
 class ProdConfig(Config):
@@ -35,6 +40,6 @@ class ProdConfig(Config):
 
 config_dict = {
     'dev': DevConfig,
-    'test' : TestConfig,
-    'prod' : ProdConfig,
+    'testing' : TestConfig,
+    'production' : ProdConfig,
 }
