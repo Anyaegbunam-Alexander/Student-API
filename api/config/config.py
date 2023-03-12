@@ -9,7 +9,6 @@ GRANDPARENT_DIR = os.path.abspath(os.path.join(PARENT_DIR, os.pardir))
 
 class Config:
     SECRET_KEY=config('SECRET_KEY', 'secret')
-    DEBUG = config('DEBUG', cast=bool)
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(minutes=60)
     JWT_REFRESH_TOKEN_EXPIRES =  timedelta(minutes=60)
     JWT_SECRET_KEY = config('JWT_SECRET_KEY')
@@ -22,6 +21,8 @@ class DevConfig(Config):
     SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(GRANDPARENT_DIR, 'students.db')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_ECHO = True
+    DEBUG = config('DEBUG', cast=bool)
+
 
 
 
