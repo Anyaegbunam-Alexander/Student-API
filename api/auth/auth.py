@@ -51,7 +51,7 @@ admin_model_output_tokens = auth_namespace.model(
 )
 
 student_model_output_tokens = auth_namespace.model(
-    'Student',
+    'LoginStudent',
     {
         'email' : fields.String(),
         'access' : fields.String(),
