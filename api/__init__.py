@@ -26,7 +26,7 @@ def create_app(config=config_dict['dev']):
     }
     api = Api(app,
           title="Student API",
-          description="A REST API for a student management system (AltSchool 3rd semester project)",
+          description="A REST API for a student management system (AltSchool 3rd semester project)\n Built by Alexander",
           authorizations=authorizations,
           security="Bearer Auth"
     )

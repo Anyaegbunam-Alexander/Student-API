@@ -3,7 +3,6 @@ import re
 from datetime import timedelta
 from decouple import config
 
-# BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 PARENT_DIR = os.path.abspath(os.path.join(BASE_DIR, os.pardir))
 GRANDPARENT_DIR = os.path.abspath(os.path.join(PARENT_DIR, os.pardir))
@@ -11,6 +10,7 @@ GRANDPARENT_DIR = os.path.abspath(os.path.join(PARENT_DIR, os.pardir))
 uri = config('DATABASE_URL')  # or other relevant config var
 if uri.startswith('postgres://'):
     uri = uri.replace('postgres://', 'postgresql://', 1)
+
 
 class Config:
     SECRET_KEY=config('SECRET_KEY', 'secret')

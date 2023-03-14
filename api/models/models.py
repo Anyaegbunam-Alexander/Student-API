@@ -50,9 +50,9 @@ class Course(db.Model):
     units = db.Column(db.Integer())
     date_added = db.Column(db.DateTime(), default=datetime.utcnow)
     teacher_id = db.Column(db.Integer(), db.ForeignKey('teacher.id'), nullable=True)
-    course_teacher = db.relationship('Teacher', backref=db.backref('courses', lazy=True), overlaps="teacher,teacher_courses")
+    course_teacher = db.relationship('Teacher', backref=db.backref('courses', lazy=True, overlaps="teacher,teacher_courses"), overlaps="teacher,teacher_courses")
     course_students = db.relationship('Student', secondary='student_courses', back_populates='student_courses')
-    course_grades = db.relationship('Grade', backref=db.backref('grades_course', lazy=True))
+    course_grades = db.relationship('Grade', backref=db.backref('grades_course', lazy=True, overlaps="courses,grade_course"), overlaps="courses,grade_course")
 
 
     def __repr__(self) -> str:
@@ -74,7 +74,7 @@ class Student(db.Model):
     password = db.Column(db.Text(), nullable=False)
     date_added = db.Column(db.DateTime(), default=datetime.utcnow)
     student_courses = db.relationship('Course', secondary='student_courses', back_populates='course_students')
-    student_grades = db.relationship('Grade', backref=db.backref('grades_student', lazy=True))
+    student_grades = db.relationship('Grade', backref=db.backref('grades_student', lazy=True, overlaps="grade_student,students"), overlaps="grade_student,students")
 
     def __repr__(self) -> str:
         return self.name

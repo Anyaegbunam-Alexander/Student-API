@@ -3,9 +3,10 @@ from http import HTTPStatus
 from flask_restx import Namespace, Resource, fields, abort
 from flask import request
 from werkzeug.security import generate_password_hash, check_password_hash
+from flask_jwt_extended import create_access_token
 
 
-from api.auth.oauth import create_access_token_admin, create_access_token_non_admin, token_required
+from api.auth.oauth import admin_required
 from api.models.models import Admin, Student
 
 
@@ -60,19 +61,25 @@ student_model_output_tokens = auth_namespace.model(
 )
 
 
+
+@auth_namespace.route('/admin/admins')
+class Admins(Resource):
+
+    @admin_required
+    @auth_namespace.marshal_list_with(admin_model_output)
+    def get(self):
+        '''Get all admins'''
+        admins = Admin.query.all()
+        return admins, HTTPStatus.OK
+
+
 @auth_namespace.route('/admin/register')
 class Admins(Resource):
 
-    @token_required
+    @admin_required
     @auth_namespace.expect(admin_model_input)
     @auth_namespace.marshal_with(admin_model_output)
-    def post(self, payload_dict):
-        ''' Create an admin '''
-        is_administrator = payload_dict.get('is_administrator')
-
-        if not is_administrator:
-            abort(HTTPStatus.UNAUTHORIZED, 'Not Authorized')
-
+    def post(self):
         '''Create an admin'''
         data = request.get_json()
         email = data.get('email')
@@ -93,6 +100,7 @@ class Admins(Resource):
         new_admin.save()
 
         return new_admin, HTTPStatus.CREATED
+    
 
 
 @auth_namespace.route('/admin/login')
@@ -109,8 +117,10 @@ class Admins(Resource):
         admin = Admin.query.filter_by(email=email).first()
 
         if admin and check_password_hash(admin.password, password):
-            create_access_token_admin(admin)
+            
+            admin.access = create_access_token(identity=admin.id, additional_claims={"is_administrator" : True})
             admin.is_administrator = True
+            admin.token_type = 'bearer'
 
             return admin, HTTPStatus.OK
         
@@ -132,39 +142,23 @@ class Admins(Resource):
         student = Student.query.filter_by(email=email).first()
 
         if student and check_password_hash(student.password, password):
-            create_access_token_non_admin(student)
+            student.access = create_access_token(identity=student.id, additional_claims={"is_administrator" : False})
+            student.is_administrator = False
+            student.token_type = 'bearer'
 
             return student, HTTPStatus.OK
         
         abort(HTTPStatus.UNAUTHORIZED, 'Wrong credentials')
-
-
-@auth_namespace.route('/admin/test')
-class Admins(Resource):
-
-    @token_required
-    def post(self, payload_dict):
-        ''' Test '''
-        is_administrator = payload_dict.get('is_administrator')
-
-        return is_administrator, HTTPStatus.OK
         
     
-
-
-@auth_namespace.route('/admin/delete-admin')
+@auth_namespace.route('/admin/delete-admin/<int:id>')
 class Admins(Resource):
 
-    @token_required
-    def delete(self, id, payload_dict):
+    @admin_required
+    def delete(self, id):
         ''' Delete an admin '''
-        is_administrator = payload_dict.get('is_administrator')
-
-        if not is_administrator:
-            abort(HTTPStatus.UNAUTHORIZED, 'Not Authorized')
         
         admin_to_delete = Admin.query.get_or_404(id)
         admin_to_delete.delete()
 
         return "", HTTPStatus.NO_CONTENT
-

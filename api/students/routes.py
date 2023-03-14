@@ -3,9 +3,10 @@ from http import HTTPStatus
 from flask_restx import Namespace, Resource, fields, abort
 from flask import request
 from werkzeug.security import generate_password_hash
+from flask_jwt_extended import jwt_required, get_jwt_identity
 
 from api.utils import db
-from api.auth.oauth import token_required
+from api.auth.oauth import admin_required
 from api.models.models import Student, Course, Grade
 from api.utils.helpers import calculate_grade, get_grade, grade_scale
 
@@ -58,29 +59,25 @@ student_model_input_remove_courses = student_namespace.model(
 @student_namespace.route('/admin/students')
 class Students(Resource):
 
-    @token_required
+    @admin_required
     @student_namespace.marshal_list_with(student_model_output, envelope='students')
-    def get(self, payload_dict):
+    @student_namespace.doc(
+        description = "Get all students (Admin only)")
+    def get(self):
         '''Get all students'''
-        is_administrator = payload_dict.get('is_administrator')
-
-        if not is_administrator:
-            abort(HTTPStatus.UNAUTHORIZED, 'Not Authorized')
 
         students = Student.query.all()
         for student in students:
             calculate_grade(student, Course)
         return students, HTTPStatus.OK
 
-    @token_required
+    @admin_required
     @student_namespace.marshal_list_with(student_model_output, envelope='student')
     @student_namespace.expect(student_model_input)
-    def post(self, payload_dict):
+    @student_namespace.doc(
+        description = "Create new students")
+    def post(self):
         '''Create new student(s)'''
-        is_administrator = payload_dict.get('is_administrator')
-
-        if not is_administrator:
-            abort(HTTPStatus.UNAUTHORIZED, 'Not Authorized')
 
         students_to_return = []
 
@@ -93,10 +90,10 @@ class Students(Resource):
             password = student.get('password')
 
             if len(password) < 6:
-                abort(HTTPStatus.UNAUTHORIZED, 'Password is too short')
+                abort(HTTPStatus.BAD_REQUEST, 'Password is too short')
             
             if not validators.email(email):
-                abort(HTTPStatus.UNAUTHORIZED, 'Email is not valid')
+                abort(HTTPStatus.BAD_REQUEST, 'Email is not valid')
 
             if Student.query.filter_by(email=email).first() is not None:
                 abort(HTTPStatus.CONFLICT, 'Email is taken')
@@ -113,31 +110,26 @@ class Students(Resource):
 @student_namespace.route('/admin/student/<int:id>')
 class Students(Resource):
 
-    @token_required
+    @admin_required
     @student_namespace.marshal_list_with(student_model_output, envelope='student')
     @student_namespace.doc(
         description = "Get any student by id. (Admin only)")
-    def get(self, payload_dict, id):
-        '''Get a student by id (Admin) '''
-        student = Student.query.get_or_404(id)
-        is_administrator = payload_dict.get('is_administrator')
+    def get(self, id):
+        '''Get a student by id'''
 
-        if not is_administrator:
-            abort(HTTPStatus.UNAUTHORIZED, 'Not Authorized')
+        student = Student.query.get_or_404(id)
 
         calculate_grade(student, Course)
                 
         return student, HTTPStatus.OK
 
-    @token_required
+    @admin_required
     @student_namespace.marshal_list_with(student_model_output, envelope='student')
     @student_namespace.expect(student_model_input)
-    def put(self, payload_dict, id):
+    @student_namespace.doc(
+        description = "Update a student by id.")
+    def put(self, id):
         '''  Update a student by id'''
-        is_administrator = payload_dict.get('is_administrator')
-
-        if not is_administrator:
-            abort(HTTPStatus.UNAUTHORIZED, 'Not Authorized')
 
         student_to_update = Student.query.get_or_404(id)
         data = request.get_json()
@@ -169,30 +161,26 @@ class Students(Resource):
 
         return student_to_update, HTTPStatus.OK
 
-    @token_required
-    def delete(self, payload_dict, id):
+    @admin_required
+    @student_namespace.doc(
+        description = "Delete a student by id.")
+    def delete(self, id):
         '''Delete a student by id'''
-        is_administrator = payload_dict.get('is_administrator')
-
-        if not is_administrator:
-            abort(HTTPStatus.UNAUTHORIZED, 'Not Authorized')
 
         student_to_delete = Student.query.get_or_404(id)
         student_to_delete.delete()
-        return HTTPStatus.NO_CONTENT
+        return "", HTTPStatus.NO_CONTENT
 
 
 @student_namespace.route('/admin/student/remove-course/<int:id>')
 class Students(Resource):
-    @token_required
+    @admin_required
     @student_namespace.marshal_with(student_model_output, envelope='student')
     @student_namespace.expect(student_model_input_remove_courses)
-    def put(self, payload_dict, id):
-        '''Update a student by id'''
-        is_administrator = payload_dict.get('is_administrator')
-
-        if not is_administrator:
-            abort(HTTPStatus.UNAUTHORIZED, 'Not Authorized')
+    @student_namespace.doc(
+        description = "Remove/Unregster courses the student is enrolled in using the student id and course ids (Admin only)")
+    def put(self, id):
+        '''Remove/Unregister courses a student is enrolled in'''
 
         student_to_update = Student.query.get_or_404(id)
         data = request.get_json()
@@ -223,15 +211,18 @@ class Students(Resource):
 @student_namespace.route('/student/<int:id>')
 class Students(Resource):
 
-    @token_required
+    @jwt_required()
     @student_namespace.marshal_list_with(student_model_output, code=200, envelope='student')
-    def get(self, payload_dict, id):
-        ''' Get a student by id (non admin)'''
+    @student_namespace.doc(
+        description = "The student can get their own details only by their id.")
+    def get(self, id):
+        ''' Get a student by id (the registered student)'''
+        
+        query_id = get_jwt_identity()
+        if query_id != id:
+            abort(HTTPStatus.UNAUTHORIZED, "You are not authorized!")
         student = Student.query.get_or_404(id)
-        payload_id = payload_dict.get('id')
-
-        if student.id != payload_id: 
-            abort(HTTPStatus.UNAUTHORIZED, 'Not Authorized')
+    
 
         total_quality_points = 0
         total_course_units = 0
