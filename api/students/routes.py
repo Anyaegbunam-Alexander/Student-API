@@ -50,7 +50,7 @@ student_model_input = student_namespace.model(
 
 
 student_model_input_remove_courses = student_namespace.model(
-    'Student',
+    'StudentCourses',
     {
         'courses': fields.List(fields.Integer(), required=True)
     }
