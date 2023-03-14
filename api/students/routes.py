@@ -10,7 +10,7 @@ from api.auth.oauth import admin_required
 from api.models.models import Student, Course, Grade
 from api.utils.helpers import calculate_grade, get_grade, grade_scale
 
-student_namespace = Namespace('students', description='students namespace')
+student_namespace = Namespace('Students', description='students namespace')
 
 grade_model_output = student_namespace.model(
     'Grade',

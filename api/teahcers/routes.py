@@ -7,7 +7,7 @@ from api.utils import db
 from api.models.models import Teacher
 from api.auth.oauth import admin_required
 
-teacher_namespace = Namespace('teacher', description='teachers namespace')
+teacher_namespace = Namespace('Teacher', description='teachers namespace')
 
 
 teacher_model_input = teacher_namespace.model(

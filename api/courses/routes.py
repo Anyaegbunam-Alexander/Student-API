@@ -6,7 +6,7 @@ from api.utils import db
 from api.auth.oauth import admin_required
 from api.models.models import Course
 
-course_namespace = Namespace('course', description='courses namespace')
+course_namespace = Namespace('Course', description='courses namespace')
 
 course_model_output = course_namespace.model(
     'Course',

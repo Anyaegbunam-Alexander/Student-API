@@ -10,7 +10,7 @@ from api.auth.oauth import admin_required
 from api.models.models import Admin, Student
 
 
-auth_namespace = Namespace('auth', description='authentication namespace')
+auth_namespace = Namespace('Auth', description='authentication namespace')
 
 
 admin_model_input = auth_namespace.model(
