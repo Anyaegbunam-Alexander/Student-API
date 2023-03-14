@@ -71,3 +71,19 @@ class AdminTestCase(unittest.TestCase):
         response = self.client.post('/auth/admin/login', json=data)
 
         self.assertEqual(response.status_code, 200)
+
+
+    
+    def test_get_all_admins(self):
+        token = create_access_token(identity='testadmin', additional_claims={"is_administrator" : True})
+
+        headers = {"Authorization":f"Bearer {token}"}
+        
+
+        response = self.client.get('auth/admin/admins', headers=headers)
+
+        admin = Admin.query.all()
+
+        self.assertEqual(response.status_code, 200)
+
+        self.assertEqual(response.json, [])
