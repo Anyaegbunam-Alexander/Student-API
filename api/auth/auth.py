@@ -3,7 +3,7 @@ from http import HTTPStatus
 from flask_restx import Namespace, Resource, fields, abort
 from flask import request
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask_jwt_extended import create_access_token
+from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity, create_refresh_token
 
 
 from api.auth.oauth import admin_required
@@ -45,6 +45,7 @@ admin_model_output_tokens = auth_namespace.model(
     {
         'email' : fields.String(),
         'access' : fields.String(),
+        'refresh' : fields.String(),
         'token_type' : fields.String(),
         'is_administrator' : fields.Boolean()
     }
@@ -55,6 +56,7 @@ student_model_output_tokens = auth_namespace.model(
     {
         'email' : fields.String(),
         'access' : fields.String(),
+        'refresh' : fields.String(),
         'token_type' : fields.String(),
         'is_administrator' : fields.Boolean()
     }
@@ -119,6 +121,7 @@ class Admins(Resource):
         if admin and check_password_hash(admin.password, password):
             
             admin.access = create_access_token(identity=admin.id, additional_claims={"is_administrator" : True})
+            admin.refresh = create_refresh_token(identity=admin.id, additional_claims={"is_administrator" : True})
             admin.is_administrator = True
             admin.token_type = 'bearer'
 
@@ -143,6 +146,7 @@ class Admins(Resource):
 
         if student and check_password_hash(student.password, password):
             student.access = create_access_token(identity=student.id, additional_claims={"is_administrator" : False})
+            student.refresh = create_refresh_token(identity=student.id, additional_claims={"is_administrator" : False})
             student.is_administrator = False
             student.token_type = 'bearer'
 
@@ -162,3 +166,28 @@ class Admins(Resource):
         admin_to_delete.delete()
 
         return "", HTTPStatus.NO_CONTENT
+
+
+@auth_namespace.route('/admin/refresh')
+class Refresh(Resource):
+    @jwt_required(refresh=True)
+    def post(self):
+        id = get_jwt_identity()
+
+        access_token = create_access_token(identity=id, additional_claims={"is_administrator" : True})
+
+
+        return {'access_token': access_token}, HTTPStatus.OK
+    
+
+
+@auth_namespace.route('/student/refresh')
+class Refresh(Resource):
+    @jwt_required(refresh=True)
+    def post(self):
+        id = get_jwt_identity()
+
+        access_token = create_access_token(identity=id, additional_claims={"is_administrator" : False})
+
+
+        return {'access_token': access_token}, HTTPStatus.OK
