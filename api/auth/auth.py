@@ -172,10 +172,9 @@ class Admins(Resource):
 class Refresh(Resource):
     @jwt_required(refresh=True)
     def post(self):
+        '''Create a new access token from refresh token for admins'''
         id = get_jwt_identity()
-
         access_token = create_access_token(identity=id, additional_claims={"is_administrator" : True})
-
 
         return {'access_token': access_token}, HTTPStatus.OK
     
@@ -185,9 +184,8 @@ class Refresh(Resource):
 class Refresh(Resource):
     @jwt_required(refresh=True)
     def post(self):
+        '''Create a new access token from refresh token for students'''
         id = get_jwt_identity()
-
         access_token = create_access_token(identity=id, additional_claims={"is_administrator" : False})
-
-
+        
         return {'access_token': access_token}, HTTPStatus.OK
