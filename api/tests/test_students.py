@@ -102,10 +102,21 @@ class StudentTestCase(unittest.TestCase):
         db.session.add(student)
         db.session.commit()
 
-        # get the student object from the database
-        student = Student.query.filter_by(email=student.email).first()
+        date_added = student.date_added
+        date_added = date_added.strftime('%Y-%m-%dT%H:%M:%S.%f')
 
         response = self.client.get('students/admin/student/1', headers=headers)
 
+        expected = {
+                    "student": {
+                        "id": 1,
+                        "name": "teststudent",
+                        "email": "testemail",
+                        "date_added": date_added,
+                        "GPA": None,
+                        "student_grades": []
+                    }}
+
         self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json, expected)
         
