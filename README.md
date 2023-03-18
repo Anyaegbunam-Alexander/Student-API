@@ -59,6 +59,113 @@ In Flask, the default port is 5000
 Entry point: `http://localhost:5000/`
 
 
+
+## Requests
+### Students
+####  Create new student(s).
+You can create just one student or more than one student. You just need to send a list of dictionaries with each student's details. Below is how the request would look like.
+```
+{"students" : [
+                {
+                    "name" : "John Doe 1",
+                    "email" : "johndoe1@email.com",
+                    "password" : "password1"
+                },
+                {
+                    "name" : "John Doe 2",
+                    "email" : "johndoe2email@email.com",
+                    "password" : "password2"
+                }
+]}
+
+
+```
+
+#### Updating a student by id.
+You can update the student's information including register them for courses. Below is how the request would look like.
+```
+{
+    "name": "John Doe",
+    "email": "john.doe@example.com",
+    "courses": [
+        {
+            "id": 4,
+            "score": 0
+        },
+        {
+            "id": 2,
+            "score": 65.0
+        },
+        {
+            "id": 3,
+            "score": 0
+        }
+    ]
+}
+
+```
+The ids are the course_ids.
+
+#### Removing/Unregistering courses a student is enrolled in.
+This endpoint is specifically from removing courses the student is enrolled in. Any id in this list will be removed from the student's courses if the course with that id exits. Below is how the request would look like.
+```
+{
+    "courses": [3, 1]
+}
+```
+
+### Teachers
+#### Create new teacher(s)
+You can create just one teacher or more than one teacher. You just need to send a list of dictionaries with each teacher's details. Below is how the request would look like.
+```
+{"teachers" : [
+                {
+                    "name" : "Teacher 5",
+                    "email" : "teacher5@email.com"
+                },
+                {
+                    "name" : "Teacher 7",
+                    "email" : "teacher7@email.com"
+                }
+]}
+
+```
+#### Update a teacher by id
+Here you can only update the teacher's details but not the courses the teacher is taking. Below is how the request would look like.
+```
+{
+	"name": "Teacher",
+	"email": "teacher@email.com"
+}
+```
+
+### Courses
+#### Create new course(s)
+You can also create one or multiple courses. You just need to send a list of dictionaries with each course's details. This is where you will assign the teacher to take the course by their id. Below is how the request would look like.
+```
+{"courses" : [
+                {
+                    "title" : "Course 1",
+                    "teacher_id" : "2",
+                    "units" : 3
+                },
+                {
+                    "title" : "Course 2",
+                    "teacher_id" : "1",
+                    "units" : 2
+                }        
+]}
+
+```
+### Update a course by id. Here you can update the units and the teacher taking the course. Below is how the request would look like.
+```
+{
+ "title" : "Course 1",
+ "teacher_id" : 4,
+ "units" : 3
+}
+```
+
 ## Contact
 - Mail: alexanderking.aa@gmail.com
 - GitHub: [Alexander](https://github.com/Anyaegbunam-Alexander)
