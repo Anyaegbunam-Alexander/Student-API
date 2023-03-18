@@ -78,7 +78,7 @@ class Admins(Resource):
 @auth_namespace.route('/admin/register')
 class Admins(Resource):
 
-    @admin_required
+    
     @auth_namespace.expect(admin_model_input)
     @auth_namespace.marshal_with(admin_model_output)
     def post(self):

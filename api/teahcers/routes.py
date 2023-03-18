@@ -95,6 +95,9 @@ class Teachers(Resource):
         teacher_to_update.name = data.get('name')
         teacher_to_update.email = data.get('email')
 
+        if not validators.email(teacher_to_update.email):
+                abort(HTTPStatus.BAD_REQUEST, 'Email is not valid')
+
         db.session.commit()
 
         return teacher_to_update, HTTPStatus.OK

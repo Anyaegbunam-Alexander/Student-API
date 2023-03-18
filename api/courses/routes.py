@@ -31,6 +31,14 @@ course_model_input = course_namespace.model(
     }
 )
 
+single_course_model_input = course_namespace.model(
+    'Course',
+    {
+            'title':fields.String(),
+            'teacher_id' : fields.Integer(),
+            'units' : fields.Integer()
+})
+
 
 @course_namespace.route('/admin/courses')
 class Courses(Resource):
@@ -47,7 +55,7 @@ class Courses(Resource):
     @course_namespace.marshal_list_with(course_model_output, envelope='courses')
     @course_namespace.expect(course_model_input)
     def post(self):
-        '''Create new courses'''
+        '''Create new course(s)'''
         courses_to_return = []
         
         data = request.get_json()
@@ -77,7 +85,7 @@ class Courses(Resource):
 
     @admin_required
     @course_namespace.marshal_with(course_model_output, envelope='course')
-    @course_namespace.expect(course_model_input)
+    @course_namespace.expect(single_course_model_input)
     def put(self, id):
         '''Update a course by id'''
             

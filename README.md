@@ -7,7 +7,7 @@ Using [Python](https://www.python.org/), [Flask-RESTX](https://flask-restx.readt
 This project is an API for managing students and courses. It includes endpoints for creating, reading, updating, and deleting students and courses. 
 Students have a name, ID, and email address. Courses have a name, ID, teacher and list of registered students. 
 The API also includes functionality for registering courses and retrieving grades. GPA is calculated using the standard 4.0 scale.
-The API is secured with JWT tokens for authentication and authorization. It is worth noting that admins have access to all routes and resources and all routes are admin protected so you will have to hash a password and create an admin manually in the database as only an authenticated admin can create another admin.  
+The API is secured with JWT tokens for authentication and authorization. It is worth noting that admins have access to all routes and resources, and all routes are admin protected, and only an authenticated admin can create another admin. But for the purposes of testing, the route for creating an admin will be open.
 
 This API was built as a Third Semester exam project by [Alexander](https://github.com/Anyaegbunam-Alexander), a Backend Engineering student of [AltSchool Africa](https://www.altschoolafrica.com/).
 

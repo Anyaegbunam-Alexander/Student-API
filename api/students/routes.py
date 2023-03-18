@@ -48,6 +48,18 @@ student_model_input = student_namespace.model(
     }
 )
 
+single_student_model_input = student_namespace.model(
+    'Student',
+    {    
+            'name':fields.String(),
+            'email':fields.String(),
+            'password' : fields.String(),
+            'courses': fields.List(fields.Nested(student_namespace.model('Course', {
+                'id': fields.Integer(),
+                'course_grades': fields.Float()
+            })))
+        })
+
 
 student_model_input_remove_courses = student_namespace.model(
     'StudentCourses',
@@ -125,7 +137,7 @@ class Students(Resource):
 
     @admin_required
     @student_namespace.marshal_list_with(student_model_output, envelope='student')
-    @student_namespace.expect(student_model_input)
+    @student_namespace.expect(single_student_model_input)
     @student_namespace.doc(
         description = "Update a student by id.")
     def put(self, id):
@@ -136,6 +148,9 @@ class Students(Resource):
         courses = data.get('courses')
         student_to_update.name = data.get('name')
         student_to_update.email = data.get('email')
+        
+        if not validators.email(student_to_update.email):
+                abort(HTTPStatus.BAD_REQUEST, 'Email is not valid')
 
         if courses:
             for course in courses:
