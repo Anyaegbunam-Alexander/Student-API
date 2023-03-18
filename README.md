@@ -166,6 +166,9 @@ You can also create one or multiple courses. You just need to send a list of dic
 }
 ```
 
+## Testing
+There are a total of 13 tests. In the terminal, run `pytest` or `pytest -v`.
+
 ## Contact
 - Mail: alexanderking.aa@gmail.com
 - GitHub: [Alexander](https://github.com/Anyaegbunam-Alexander)
