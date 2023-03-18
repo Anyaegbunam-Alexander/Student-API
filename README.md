@@ -116,32 +116,36 @@ This endpoint is specifically from removing courses the student is enrolled in. 
 
 ### Teachers
 #### Create new teacher(s)
-You can create just one teacher or more than one teacher. You just need to send a list of dictionaries with each teacher's details. Below is how the request would look like.
+You can create just one teacher or more than one teacher. You just need to send a list of dictionaries with each teacher's details.  
+You **MUST** create teachers before creating courses.  
+Below is how the request would look like.
 ```
 {"teachers" : [
                 {
-                    "name" : "Teacher 5",
-                    "email" : "teacher5@email.com"
+                    "name" : "Teacher 1",
+                    "email" : "teacher1@email.com"
                 },
                 {
-                    "name" : "Teacher 7",
-                    "email" : "teacher7@email.com"
+                    "name" : "Teacher 2",
+                    "email" : "teacher2@email.com"
                 }
 ]}
 
 ```
-#### Update a teacher by id
+#### Update a teacher by id  
 Here you can only update the teacher's details but not the courses the teacher is taking. Below is how the request would look like.
 ```
 {
-	"name": "Teacher",
+	"name": "Teacher 1 (Updated)",
 	"email": "teacher@email.com"
 }
 ```
 
 ### Courses
 #### Create new course(s)
-You can also create one or multiple courses. You just need to send a list of dictionaries with each course's details. This is where you will assign the teacher to take the course by their id. Below is how the request would look like.
+You can also create one or multiple courses. You just need to send a list of dictionaries with each course's details. This is where you will assign the teacher to take the course by their id.  
+Every course **MUST** have a teacher_id and the teacher_id **MUST** exist in the database.  
+Below is how the request would look like.
 ```
 {"courses" : [
                 {
@@ -157,7 +161,8 @@ You can also create one or multiple courses. You just need to send a list of dic
 ]}
 
 ```
-### Update a course by id. Here you can update the units and the teacher taking the course. Below is how the request would look like.
+### Update a course by id
+Here you can update the units and the teacher taking the course. Below is how the request would look like.
 ```
 {
  "title" : "Course 1",
