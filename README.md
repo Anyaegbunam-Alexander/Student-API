@@ -107,7 +107,7 @@ You can update the student's information including register them for courses. Be
 The ids are the course_ids.
 
 #### Removing/Unregistering courses a student is enrolled in.
-This endpoint is specifically from removing courses the student is enrolled in. Any id in this list will be removed from the student's courses if the course with that id exits. Below is how the request would look like.
+This endpoint is specifically for removing courses the student is enrolled in. Any id in this list will be removed from the student's courses if the course with that id exits. Below is how the request would look like.
 ```
 {
     "courses": [3, 1]
