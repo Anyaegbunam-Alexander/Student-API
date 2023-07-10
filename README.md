@@ -4,10 +4,13 @@
 Using [Python](https://www.python.org/), [Flask-RESTX](https://flask-restx.readthedocs.io/en/latest/), [PostgreSQL](https://www.postgresql.org), and [Swagger UI](https://swagger.io/tools/swagger-ui/) to build a student management API.
 
 ## Summary
-This project is an API for managing students and courses. It includes endpoints for creating, reading, updating, and deleting students and courses. 
-Students have a name, ID, and email address. Courses have a name, ID, teacher and list of registered students. 
-The API also includes functionality for registering courses and retrieving grades. GPA is calculated using the standard 4.0 scale.
-The API is secured with JWT tokens for authentication and authorization. It is worth noting that admins have access to all routes and resources, and all routes are admin protected, and only an authenticated admin can create another admin. But for the purposes of testing, the route for creating an admin will be open.
+This project is an API designed for managing students and courses. It provides a comprehensive set of endpoints for creating, reading, updating, and deleting student and course records.
+
+Students are identified by their name, ID, and email address, while courses are characterized by their name, ID, assigned teacher, and a list of registered students. The API also incorporates functionality for course registration and retrieving grades. The GPA calculation follows the standard 4.0 scale.
+
+To ensure security, the API employs JWT tokens for authentication and authorization. All routes and resources are protected, with only authenticated admins having access. Notably, only an authenticated admin is authorized to create another admin. However, for testing purposes, the route for creating an admin is temporarily open.
+
+In summary, this API offers a robust solution for managing students and courses, with comprehensive CRUD operations, secure authentication and authorization, and support for GPA calculation and grade retrieval.
 
 This API was built as a Third Semester exam project by [Alexander](https://github.com/Anyaegbunam-Alexander), a Backend Engineering student of [AltSchool Africa](https://www.altschoolafrica.com/).
 
